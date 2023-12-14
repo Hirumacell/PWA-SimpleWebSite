@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Evenements Nantais</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="app">
+        <h1>Liste des évenements à Nantes</h1>
+        <form>
+            <div class="form-group">
+                <label for="exampleFormControlSelect1">Choisir une catégorie :</label>
+                <select class="form-control" id="exampleFormControlSelect1" v-model="selectedCategory">
+                    <option value="">Toutes les catégories</option>
+                    <option v-for="category in uniqueCategories" :key="category" :value="category">{{ category }}</option>
+                </select>
+            </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Lieu</th>
+                    <th scope="col" >Categorie</th>
+                    <th scope="col" >Date</th>
+                    <th scope="col" >Carte</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="event in filteredEvents">
+                    <td>{{ event.nom }}</td>
+                    <td>{{ event.lieu }}</td>
+                    <td>{{ event.categorie_1 }}</td>
+                    <td>{{ event.date }}</td>
+                    <td scope="row">
+                        <a type="button" class="btn btn-dark" :href="'https://www.google.com/maps?q=' + event.latitude + ',' + event.longitude" target="_blank">Afficher</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://unpkg.com/vue@3"></script>
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js', {scope: '/'});
+    }
+    const APIurl = "https://data.nantesmetropole.fr/api/explore/v2.1/catalog/datasets/244400404_agenda-evenements-nantes-nantes-metropole/records?select=nom%2C%20adresse%2C%20lieu%2C%20date%2C%20latitude%2C%20longitude%2C%20categorie_1&limit=-1"
+    const app = Vue.createApp({
+        data() {
+            return {
+                selectedCategory: "",
+                events: [],
+            };
+        },
+        computed: {
+            uniqueEvents() {
+                const uniqueNames = new Set();
+                return this.events.filter(event => {
+                    if (!uniqueNames.has(event.nom)) {
+                        uniqueNames.add(event.nom);
+                        return true;
+                    }
+                    return false;
+                });
+            },
+            uniqueCategories() {
+                const uniqueCategories = new Set();
+                this.events.forEach(event => {
+                    uniqueCategories.add(event.categorie_1);
+                });
+                return Array.from(uniqueCategories);
+            },
+            filteredEvents() {
+                if (this.selectedCategory === "") {
+                    return this.uniqueEvents;
+                } else {
+                    return this.uniqueEvents.filter(event => event.categorie_1 === this.selectedCategory);
+                }
+            },
+        },
+        mounted() {
+            this.fetchEventData();
+        },
+        methods: {
+            async fetchEventData() {
+                try {
+                    const response = await axios.get(APIurl);
+                    this.events = response.data.results;
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
+            },
+        },
+    });
+    app.mount('#app');
+</script>
+</body>
+</html>

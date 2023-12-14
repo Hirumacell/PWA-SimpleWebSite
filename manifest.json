@@ -1,0 +1,17 @@
+{
+    "lang": "fr-FR",
+    "name": "TestDesc",
+    "short_name": "EventLister",
+    "description": "This is a classical eventlister",
+    "start_url": "/",
+    "background_color": "#2f3d58",
+    "theme_color": "#2f3d58",
+    "orientation": "any",
+    "display": "standalone",
+    "icons": [
+    {
+        "src": "/icon512.png",
+        "sizes": "512x512"
+    }
+]
+}
