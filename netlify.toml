@@ -1,3 +1,3 @@
 [build]
-  command = "npm run build"  # Mettez ici la commande de build si nécessaire
-  publish = "/"  # Mettez ici le répertoire à publier
+command = "npm run build"  # Assurez-vous que cela correspond à la commande de construction de votre projet
+publish = "public"
